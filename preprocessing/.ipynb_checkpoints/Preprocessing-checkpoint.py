@@ -505,6 +505,7 @@ class Preprocessing:
         
             text = self.normalize_text(text)
             text = ' '.join([word for word in text.split() if not word in self.stopwords])
+            text = text.translate(str.maketrans('', '', string.punctuation.replace(':','').replace('.','')))
             text = re.sub(' +', ' ', text).strip()
             text_tmp = 'tmp ' + text + ' tmp'
             split_report = text_tmp.split()
@@ -524,6 +525,7 @@ class Preprocessing:
         sample = sample.replace('نظریه ی','نظریه')
         sample = ' '.join(sample.split())
         sample = sample.replace(' :',':').replace(': ',':').split('رادیوگرافی')[1:]
+        sample = [x + 'رادیوگرافی' for x in sample if x]
         sample = ' '.join(sample)
         sample = sample.replace('گزارش و نظریه رادیولوژیست:','').replace('گزارش و نظریه رادیولوژیست','').split('راديولوژيست:')[0].replace('/ج','').replace('/ن','').strip()
         sample = ' '.join(sample.split())   
@@ -547,9 +549,14 @@ class Preprocessing:
 
         for verb in verbs:
             sample = sample.replace(verb, verb + '.')
-        sample = sample.replace('..','.')
+        
 
-        sample = sample.replace(':','.')
-        sentences = my_tokenizer.tokenize_sentences(sample)
+        sample = sample.replace(': ',' tag .')
+#         sample = sample.replace(' :',' .:')
+        
+        sample = sample.replace('..','.')
+        sample = sample.replace('. .','.')
+        
+        sentences = my_tokenizer.tokenize_sentences(sample.strip())
         
         return sentences
