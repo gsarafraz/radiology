@@ -31,14 +31,30 @@ class Preprocessing:
         self.char_mappings = {
             "А": "a",
             "В": "b",
+            "C": "c",
+            "D": "d",
             "Е": "e",
+            "F": "f",
+            "G": "g",
             "Н": "h",
-            "Р": "P",
-            "С": "C",
-            "Т": "T",
-            "а": "a",
-            "г": "r",
-            "е": "e",
+            "I": "i",
+            "J": "j",
+            "K": "k",
+            "L": "l",
+            "M": "m",
+            "N": "n",
+            "O": "o",
+            "P": "p",
+            "Q": "q",
+            "R": "r",
+            "S": "s",
+            "Т": "t",
+            "U": "u",
+            "V": "v",
+            "W": "w",
+            "X": "x",
+            "Y": "y",
+            "Z": "z",
             "к": "k",
             "м": "m",
             "о": "o",
@@ -303,32 +319,6 @@ class Preprocessing:
             "7",
             "8",
             "9",
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H",
-            "I",
-            "J",
-            "K",
-            "L",
-            "M",
-            "N",
-            "O",
-            "P",
-            "Q",
-            "R",
-            "S",
-            "T",
-            "U",
-            "V",
-            "W",
-            "X",
-            "Y",
-            "Z",
             "a",
             "b",
             "c",
@@ -527,7 +517,19 @@ class Preprocessing:
         sample = sample.replace(' :',':').replace(': ',':').split('رادیوگرافی')[1:]
         sample = [x + 'رادیوگرافی' for x in sample if x]
         sample = ' '.join(sample)
-        sample = sample.replace('گزارش و نظریه رادیولوژیست:','').replace('گزارش و نظریه رادیولوژیست','').split('راديولوژيست:')[0].replace('/ج','').replace('/ن','').strip()
+        sample = sample.split('گزارش و نظریه رادیولوژیست:')
+        if(len(sample) > 1):
+            sample = sample[1]
+        else:
+            sample = sample[0]
+            
+        sample = sample.split('گزارش و نظریه رادیولوژیست')
+        if(len(sample) > 1):
+            sample = sample[1]
+        else:
+            sample = sample[0]    
+            
+        sample = sample.split('راديولوژيست:')[0].replace('/ج','').replace('/ن','').strip()
         sample = ' '.join(sample.split())   
         return sample
     
@@ -539,21 +541,19 @@ class Preprocessing:
         tags = my_tagger.parse(my_tokenizer.tokenize_words(sample.translate(str.maketrans('', '', string.punctuation))))
         my_chunker = parsivar.FindChunks()
         chunks = my_chunker.chunk_sentence(tags)
-        all_chunks = my_chunker.convert_nestedtree2rawstring(chunks)
         
-        all_chunks = all_chunks.replace('[','').replace(']','').split(',')
-        func = lambda x: x.replace('VP','').strip() if ('VP' in x) else None
-
+        
+        all_chunks = my_chunker.convert_nestedtree2rawstring(chunks)
+        all_chunks = all_chunks.split(']')
+        func = lambda x: x.replace('VP','').replace(']','').replace('[','').strip() if ('VP' in x) else None
         verbs = np.array([func(tag) for tag in all_chunks])
         verbs = set(verbs[verbs != None])
 
         for verb in verbs:
-            sample = sample.replace(verb, verb + '.')
+            sample = sample.replace(verb+' ', verb + '.')
         
-
-        sample = sample.replace(': ',' tag .')
-#         sample = sample.replace(' :',' .:')
-        
+        print('sample: ',sample)
+        sample = sample.replace(': ',' tag .')        
         sample = sample.replace('..','.')
         sample = sample.replace('. .','.')
         
